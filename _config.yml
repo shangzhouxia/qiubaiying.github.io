@@ -108,7 +108,7 @@ friends: [
         #title: "Apple",
         #href: "https://apple.com"
     },{
-        #title: "Apple Developer",
-        #href: "https://developer.apple.com/"
+        title: "QNX developers",
+        #href: "http://www.qnx.com/developers/docs/7.1/"
     }
 ]
