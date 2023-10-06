@@ -1,1 +1,89 @@
+---
+layout:     post
+title:      内存
+# subtitle:    "\"Hello World, Hello Blog\""
+date:       2023-10-06
+author:     Underdog Linux
+header-img: img/post-bg-2015.jpg
+catalog: true
+tags:
+    - QNX Hypervisor 
+---
+在QNX虚拟化环境中，guest视为连续物理内存的guest-physical memory实际上可能是虚拟化组装的host-physical memory。
+QNX虚拟化环境中的guest使用内存：
+- 常规操作（参考[Memory in a virtualized environment](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/virt/mem.html#mem__normal)）
+- 访问pass-through 设备(参考[Pass-through memory](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/virt/mem.html#mem__pass)
+- 和其他guest共享信息(参考[Shared memory](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/virt/mem.html#mem__share)
 
+请注意以下QNX hypervisor中的内存信息：
+- 除shared memory外，分配给VM的内存仅供VM托管的guest使用；也就是说，每个客户机的地址空间是独占的，并且独立于hypervisor系统中任何其他guest的位置空间。
+- 如果系统上没有足够的可用内存来完成为VM配置的内存分配，hypervisor将不会完成配置，也不会启动VM。
+- 如果分配给其主机VM的内存不足，则无论板上有多少可用内存，guest都无法启动
+- 除了用于pass-through 设备以防止信息泄漏的内存之外，hypervisor在将内存分配给VM之前将其归零。根据分配给guest的内存量，这可能需要几秒钟。
+
+# 虚拟环境中的内存
+在QNX虚拟化环境中，配置有1 GB RAM的guest将看到1 GB可用，就像在非虚拟化环境下运行时看到RAM可用一样。
+此内存分配在guest看来是物理内存。事实上，它是由虚拟化配置从不连续的物理内存组装而成的内存。
+ARM将这种组装的内存称为中间物理内存（ intermediate physical memory）；
+英特尔称之为guest物理内存。
+为了简单起见，无论平台如何，我们都将使用guest物理内存（参考[Terminology](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/apx/terminology.html)中的”Guest memory“）
+
+在QNX虚拟化环境中配置和访问内存时，务必记住以下内容：
+- 分配给guest和任何其他用途的内存总量不得超过板上可用的物理内存。
+- 内存分配必须是QNX OS系统页面大小的倍数（4 KB）。
+- guest看到的内存是由不连续的内存块组成的。这个guest物理内存在访客看来就像物理内存在非虚拟化系统中一样；例如，在x86系统上，它对于传统设备等具有相同的差距。
+- guest看到的看似物理地址实际上是guest物理内存中的guest物理地址，该地址由 qvm 进程在创建 VM 时组装。
+- guest看到的地址（guest物理地址）和guest物理地址最终在虚拟化层下转换到的物理地址（主机物理地址）之间没有对应关系。
+![guest_physical_memory.png](/img/guest_physical_memory.png)
+上图给出了QNX虚拟化系统中guest内存分配如何从物理内存的不连续块中组装的简化说明。
+为了简化图表，guest 1的内存分配不完整，为了易读性，在guest之间添加了一个间隙。
+还请注意，物理内存的某些区域可能被保留（例如，对于特定位置的板架构所需的设备），并且不能分配给guest。
+当您为guest配置内存时，需要配置内存分配的大小以及任何平台细节，例如遗留设备（x86）的间隙或RAM起始地址（ARM）。
+hypervisor负责将物理内存块组装到每个guest的guest-physical内存分配中。
+
+# Pass-through memory
+作为pass-through访问物理设备的访客需要将这些设备映射到配置为可访问的内存区域。
+请注意，pass-through设备的guest物理地址不一定与hypervisor域中的主机物理地址相同。
+![pass_through_memory.png](/img/pass_through_memory.png)
+例如，设备A可以在Guest_0的物理内存中配置为0x100。此设备可能被配置为Guest_0在同一位置（0x100）的pass-through设备，因此当Guest_0需要访问该设备时，它会查看0x100。
+但是，我们应该记住，当Guest查看物理地址时，它正在查看Guest物理地址，该地址会转换为主机物理内存中的其他地址，例如0xC00000100。
+更多关于pass-through 设备的信息，参考[Pass-through devices](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/virt/pdevs.html#pdevs__pass)。
+
+# Shared memory
+部分物理内存可以分配给Guest共享。
+guest将使用虚拟设备（如vdev shmem）连接到同一物理地址（physical address PA），并使用shared memory区域共享数据，每当有新数据可用或已读取时，都会相互触发。
+> physical address (PA)是主机中的实际物理地址，而不是Guest物理地址。
+
+![share_memory.png](/img/share_memory.png)
+有关如何在hypervisor系统中实现内存共享的信息，参考[Using a QNX Hypervisor System](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/use/use.html)章节的[Memory sharing](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/share/share_mem.html)
+
+# Configuring memory
+要为虚拟机（VM）分配内存，必须分配系统每个部分所需的内存。您不能在一个块中分配VM的所有内存。而是分配image所需的内存，然后分配各种设备所需的存储器等。
+
+许多系统都有保留的内存区域。对于 x86 系统尤其如此，它需要在特定位置使用许多vestigial 设备。这些规则适用于在虚拟环境中运行的guest，因为操作系统期望存在vestigial 设备。
+
+分配内存时，只指定bootable image在guest物理内存中的位置，并让qvm进程选择设备、共享内存等的位置可能会更有效。
+
+如果要将RAM位置用于guest的bootable image，则必须将guest配置为在其内存中的该地址查找映像。此外，如果使用qvm配置加载组件加载bootable image，则bootable image的地址必须与guest的配置匹配。（如果不指定地址，qvm进程将为您处理此问题。）
+
+例如，对于QNX guest，您可以执行以下操作：
+- 为guest映像分配RAM，guest physical 内存中的起始地址为0x80000000：
+> ram 0x80000000,128M
+- 将bootable image加载到此位置：
+> load 0x80000000,/vm/images/qnx7.ifs
+- 在guest的构建文件中指定此位置：
+> [image=0x80000000]
+[virtual=aarch64le,elf] .bootstrap = {
+   [+keeplinked] startup-armv8_fm -v -H
+   [+keeplinked] PATH=/proc/boot procnto -v
+}
+
+参考[VM Configuration Reference](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/vm/vm.html)章节中的[ram](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/vm/ram.html)
+
+# DMA device containment (smmuman)
+hypervisor使用IOMMU/SMMU管理器（smmuman），确保任何pass-through设备都无法访问未明确授予其访问权限的主机物理内存。
+
+> QNX Hypervisor for Safety需要 SMMUMAN for Safety （smmuman-safety） 服务才能运行。此外，如果您以访客身份运行 QNX OS for Safety，则此访客还必须运行 SMMUMAN for Safety。
+
+
+有关smmuman和smmuman安全服务以及如何使用它们的更多信息，请参阅[QNX Hypervisor: Protection Features](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/qhs/qhs.html)章节的[DMA device containment (smmuman)](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/qhs/dmadevcontain.html)和[SMMUMAN User's Guide](http://www.qnx.com/developers/docs/7.1/com.qnx.doc.smmuman.user/topic/about.html)。
