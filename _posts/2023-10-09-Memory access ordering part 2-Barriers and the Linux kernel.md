@@ -73,6 +73,7 @@ Linux 内核中还有其他可用的障碍。这篇文章只涵盖了最常见�
 Linux 内核补丁提交指南指出`"All memory barriers {e.g., barrier(), rmb(), wmb()} need a comment in the source code that explains the logic of what they are doing and why."`。
 尽管并不总是遵守这一点，但这意味着内核源代码本身可以成为使用barriers的有用参考。例如，以下内容取自
 > linux/drivers/net/8139too.c：
+
 ```c
 	/*
 	 * Writing to TxStatus triggers a DMA transfer of the data
@@ -83,11 +84,13 @@ Linux 内核补丁提交指南指出`"All memory barriers {e.g., barrier(), rmb(
 	RTL_W32_F (TxStatus0 + (entry * sizeof (u32)),
 		   tp->tx_flag | max(len, (unsigned int)ETH_ZLEN));
 ```
+
 此代码在将某些数据写入缓冲区以移交给 DMA 引擎后执行。
 wmb（） 确保在启动 DMA 事务的写入之前提交对缓冲区的写入，从而消除了数据损坏的风险。由于只需要这两个特定访问之间的排序，并且它们都是写入，因此 wmb（） 是正确的选择。请注意，此屏障也是 SMP 安全的，因为它的描述是 smp_wmb（） 功能的超集。
 
 另外一个例子：
 > linux/drivers/net/bnx2.c
+
 ```c
 	/* Memory barrier necessary as speculative reads of the rx
 	 * buffer can be ahead of the index in the status block
@@ -95,6 +98,7 @@ wmb（） 确保在启动 DMA 事务的写入之前提交对缓冲区的写入�
 	rmb();
 	while (sw_cons != hw_cons) {
 ```
+
 如注释所述，在这种情况下，barrier 的主要目的是防止处理器（以及编译器）在实际进入控制块之前执行 while 循环中描述的读取访问。
 
 # 使用barriers的代价
