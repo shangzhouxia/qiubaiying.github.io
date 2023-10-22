@@ -7,7 +7,7 @@ author:     Underdog Linux
 header-img: img/post-bg-2015.jpg
 catalog: true
 tags:
-    - QNX Hypervisor Configuring
+    - QNX Hypervisor Configuration
 ---
 
 hypervisor 主机域通过构建文件（`buildfile`）进行配置，与 QNX OS image完全相同。
