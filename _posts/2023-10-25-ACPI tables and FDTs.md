@@ -38,7 +38,8 @@ QNX  hypervisor虚拟机为其guest提供高级配置和电源接口 （ACPI:Adv
 4. 使用 dtc 实用程序从编辑的文件创建新的 FDT 二进制文件 (*.dtb)。
 5. 在将托管需要 FDT 信息的guest的 VM 的配置中，使用 VM 配置加载选项将其加载到guest内存中。
 例如，以下 VM 配置将 `fdt_foo.dtb` FDT 二进制文件加载到guest内存中，并将具有三个通道的 USB 设备传递给来宾：
-```h
+
+```c
 fdt load ./fdt_foo.dtb
 					
 ## USB2.0 Host (EHCI/OHCI) channels 0,1,2
