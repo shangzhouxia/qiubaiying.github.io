@@ -7,7 +7,7 @@ author:     Underdog Linux
 header-img: img/post-bg-2015.jpg
 catalog: true
 tags:
-    - QNX Hypervisor Configuring
+    - QNX Hypervisor Configuration
 ---
 
 > [Assembling and configuring VMs](https://www.qnx.com/developers/docs/7.1/index.html#com.qnx.doc.hypervisor.user/topic/config/qvm.html)的子部分
