@@ -25,14 +25,14 @@ tags:
 
 # Downloading the QNX hypervisor product package
 QNX hypervisor 产品包包含构建hypervisor 所需的所有组件。 该软件包可从QNX软件中心获取，如下图所示：
-![qvm_hyp_pkg.png](https://note.youdao.com/yws/res/b/WEBRESOURCEac1f43f4c02a9542d793bf1ce5b656db)
+![qvm_hyp_pkg.png](/img/qvm_hyp_pkg.png)
 
 假设您不更改默认设置，当您下载软件包时，QNX 软件中心会将 QNX hypervisor 安装到您指定下载的安装根目录内的目录中； <br />例如，`~/qnx710/target/qnx710/ (Linux) `或` C:\Users\userid\qnx710 (Windows)`。
 
 # Downloading a board-specific host BSP
 您从 QNX 软件中心下载的hypervisor 包包含hypervisor 支持的硬件平台的 BSP。
 但是，如果您要修改hypervisor 组件，则可能需要获取额外的 BSP。 下图显示了瑞萨 R-Car H3 BSP 的封装。
-![qvm_bsp_board.png](https://note.youdao.com/yws/res/4/WEBRESOURCEbce9112fa4c29874d715f7a157b2bab4)
+![qvm_bsp_board.png](/img/qvm_bsp_board.png)
 
 要获取特定于板的 BSP，只需下载适当的软件包并将其解压到方便的位置即可。
 
