@@ -24,17 +24,20 @@ vdev virtio-fs [directio enabled]
 
 # 选项
 **directio enabled**
+<br />
 是否启用direct I/O 支持。 
 当此选项为 true 时，将启动 FUSE 守护程序并启用此功能。 
 如果您共享的目录由资源管理器（例如 pps）管理，则可能需要启用direct I/O 才能使某些功能正常工作； 例如，阻塞读取如下所示：
 > cat /data/qnxhost/services/networking/status_public?wait,delta
 
 **host_path** dir
+<br />
 通过虚拟文件系统与Guest共享的Host目录。 
 该目录的内容将出现在Guest选择的 `mountpoint` 下。
 root 用户可以创建和共享他们想要的任何目录。 访客应用程序不需要额外的权限； 如果他们有权访问挂载点，他们就可以访问Host目录文件，就像访问本地文件一样。
 
 **intr** guest_intr
+<br />
 设置该虚拟设备的Guest中断； **仅当您还包含 loc 选项时才包含此选项**。
 `guest_intr` 参数由两个以冒号分隔的部分组成：
 1. Guest设备可编程中断控制器 (PIC) 名称的标识符
@@ -45,20 +48,24 @@ root 用户可以创建和共享他们想要的任何目录。 访客应用程�
 有关设置Guest中断的更多信息，参阅 QNX Hypervisor [User's Guide](https://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/about.html)中的Configuring guests章节。
 
 **loc** addr
+<br />
 将设备空间地址设置为addr。 addr 参数通常以十六进制指定。
 如果包含此选项，则 vdev 将其自身作为位于 addr 指定位置的内存映射 I/O (MMIO) 设备呈现给 guest 虚拟机。 
 否则，vdev 将自身呈现为 PCI 设备。
 **您必须将此选项与 `intr` 选项一起使用**。
 
 **num_req_queues** num
+<br />
 要创建的请求队列的数量。
 
 **sched** priority
+<br />
 设置VM生成的脉冲的优先级以指示新输入可用。 
 默认值为 10。
 **大多数情况下，您可以忽略此选项**。
 
 **tag** name
+<br />
 虚拟文件系统的名称。 
 挂载文件系统时，Guest必须通过此名称引用它。
 
