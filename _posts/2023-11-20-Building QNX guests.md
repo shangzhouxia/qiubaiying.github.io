@@ -17,7 +17,7 @@ tags:
 
 
 >构建 QNX Guest时：
->    - 请记住，Guest将在其中运行的 VM 必须符合Guest的期望：架构、主板特定信息、内存和 CPU、设备等。(参阅[Configuration]()章节的[Assembling and configuring VMs]())
+>    - 请记住，Guest将在其中运行的 VM 必须符合Guest的期望：架构、主板特定信息、内存和 CPU、设备等。(参阅[Configuration](https://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/config/config.html)章节的[Assembling and configuring VMs](https://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/config/qvm.html))
 >    - 请务必使用适合您的Guest操作系统版本（例如 QNX Neutrino 7.1）和您的主板架构的特定于架构的Guest BSP，而不是特定于主板的主板 BSP。
 >    - 如果您向Guest添加pass-through设备，并且这些设备需要来自板特定 BSP 的驱动程序，请将这些驱动程序复制到Guest BSP 的 prebuilt/ 目录中的适当位置。
 
@@ -37,4 +37,4 @@ tags:
 
 4. 如果对Guest BSP 进行更改，请从Guest BSP 根目录运行 make。
 
-现在，您可以将Guest IFS 添加到Host的bootable disk image中，并将其传输到目标。
+现在，您可以将Guest IFS 添加到Host的bootable disk image中，并将其传输到目标。(参阅[Hypervisor disk images](https://www.qnx.com/developers/docs/7.1/com.qnx.doc.hypervisor.user/topic/build/create_image.html))
